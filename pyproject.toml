@@ -1,0 +1,30 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "clonal_expansion_modeling_tools"
+version = "0.0.1"
+authors = [
+  { name = "Jordan Snyder", email = "jordan@ruc.dk" },
+]
+description = "A package of tools used for modeling the expansion of a malignant clone"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = {text = "MIT"}
+dependencies = [
+    "numpy",
+    "pandas",
+    "datetime",
+    "scipy",
+    "statsmodels",
+    "numba"
+]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
