@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import datetime
 
-path_to_new_data = 'D:\GESUS_followup\Baseline to follow-upv8_dataprep_4.xlsx'
-path_to_data_v5 = 'D:\GESUS_followup\Baseline to follow-upv5_anomyseret.xlsx'
+path_to_new_data = 'D:\\GESUS_followup\\Baseline to follow-upv8_dataprep_4.xlsx'
+path_to_data_v5 = 'D:\\GESUS_followup\\Baseline to follow-upv5_anomyseret.xlsx'
 path_to_cleaned_dataframe_pre_diagnosis = 'D:\\GESUS_followup\\merged_jak2_dataframe_all_67_pre_diagnosis.pkl'
 
 def load_cleaned_dataframe_pre_diagnosis(path = path_to_cleaned_dataframe_pre_diagnosis):
@@ -193,7 +193,7 @@ def prepare_dataframe_v5(path_to_data):
     df = df.join(df1)
 
     # recompute  age field
-    df['age'] = (df['fremmoede_dato'] - df['f_date']) / np.timedelta64(1, 'Y')
+    df['age'] = (df['fremmoede_dato'] - df['f_date']) / np.timedelta64(1, 'Y') # type: ignore
 
     # correct typos
     df.at[(10, 6), 'ery'] = 4.6
@@ -263,7 +263,7 @@ def get_tdata_ydata(df, subject_id):
     elif 'vaf' in dfsubset.columns:
         ycol = dfsubset['vaf']
     tdata = ((tcol - tcol.iloc[0])/np.timedelta64(1, 'D')).to_numpy()
-    ydata = (ycol/100).to_numpy()
+    ydata = (ycol/100).to_numpy() # type: ignore
     # remove NANs
     good_idx = (~np.isnan(tdata))*(~np.isnan(ydata))
     return tdata[good_idx], ydata[good_idx]
