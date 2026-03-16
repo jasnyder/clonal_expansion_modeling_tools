@@ -9,6 +9,8 @@ path_to_cleaned_dataframe_pre_diagnosis = 'D:\\GESUS_followup\\merged_jak2_dataf
 def load_cleaned_dataframe_pre_diagnosis(path = path_to_cleaned_dataframe_pre_diagnosis):
     return pd.read_pickle(path)
 
+all_ids = [1, 4, 5, 6, 8, 10, 12, 13, 14, 15, 16, 17, 20, 21, 22, 25, 28, 29, 30, 33, 35, 36, 38, 39, 41, 43, 44, 45, 47, 48, 49, 51, 52, 53, 54, 55, 57, 58, 59, 60, 61, 62, 63, 66, 67, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92]
+
 def load_fake_data(path = 'data/fake_data_longer_followup.pkl'):
     print('WARNING: this data is fake')
     try:
@@ -125,8 +127,27 @@ def prepare_dataframe(path_to_data, trim_fn = trim, version='v8'):
 #     return df[df['pre_diagnosis']]
 
 
-def select_pre_diagnosis(df):
-    df['pre_diagnosis'] = np.ones(len(df), dtype=bool)
+# def select_pre_diagnosis(df):
+#     df['pre_diagnosis'] = np.ones(len(df), dtype=bool)
+
+#     for id in df.index.get_level_values(0).unique():
+#         diag_date = df.loc[(id, 0), 'diag_dato']
+#         bdate = df.loc[(id,0),'bdate']
+#         if pd.isnull(diag_date):
+#             # there was no diagnosis made, so all measurements are pre diagnosis
+#             pass
+#         else:
+#             # the diagnosis date is present; compare this to visit dates to filter
+#             age_days_at_diagnosis = (diag_date - bdate)/np.timedelta64(1, 'D')
+#             num_visits = len(df.xs(id, level=0))
+#             for visit in range(num_visits):
+#                 if df.loc[(id, visit), 'age'] > age_days_at_diagnosis:
+#                     df.loc[(id, visit), 'pre_diagnosis'] = False
+#     return df[df['pre_diagnosis']]
+
+def select_pre_diagnosis(df_in, days_buffer = 0):
+    df = df_in.copy()
+    df['pre_diagnosis'] = True
 
     for id in df.index.get_level_values(0).unique():
         diag_date = df.loc[(id, 0), 'diag_dato']
@@ -136,10 +157,12 @@ def select_pre_diagnosis(df):
             pass
         else:
             # the diagnosis date is present; compare this to visit dates to filter
-            age_at_diagnosis = diag_date - bdate
-            visits_before_diagnosis = (df.loc[(id), 'age'] < diag_date)
-            df.loc[id].loc[visits_before_diagnosis, 'pre_diagnosis'] = True
-    return df[df['pre_diagnosis']]
+            for visit in df.loc[id].index:
+                if df.loc[(id, visit), 'date'] > diag_date + np.timedelta64(days_buffer, 'D') and df.loc[(id, visit), 'date_l'] > diag_date + np.timedelta64(days_buffer, 'D'):
+                    df.loc[(id, visit), 'pre_diagnosis'] = False
+    df = df[df['pre_diagnosis']]
+    df.drop('pre_diagnosis', axis='columns', inplace=True)
+    return df
 
 
 def extract_bl_to_fu_vaf(df):
@@ -251,10 +274,13 @@ def get_tdata_ydata(df, subject_id):
         raise ValueError('no followup data')
     if 'fremmoede_dato' in dfsubset.columns:
         tcol = dfsubset['fremmoede_dato']
+        tdata = ((tcol - tcol.iloc[0])/np.timedelta64(1, "D")).to_numpy()
     elif 'fremmoede_dato_dk' in dfsubset.columns:
         tcol = dfsubset['fremmoede_dato_dk']
+        tdata = ((tcol - tcol.iloc[0])/np.timedelta64(1, "D")).to_numpy()
     elif 'age' in dfsubset.columns:
         tcol = dfsubset['age']
+        tdata = (tcol - tcol.iloc[0]).to_numpy()
     else:
         raise ValueError('no time column found')
     
@@ -262,7 +288,6 @@ def get_tdata_ydata(df, subject_id):
         ycol = dfsubset['vaf_sam']
     elif 'vaf' in dfsubset.columns:
         ycol = dfsubset['vaf']
-    tdata = ((tcol - tcol.iloc[0])/np.timedelta64(1, 'D')).to_numpy()
     ydata = (ycol/100).to_numpy() # type: ignore
     # remove NANs
     good_idx = (~np.isnan(tdata))*(~np.isnan(ydata))
