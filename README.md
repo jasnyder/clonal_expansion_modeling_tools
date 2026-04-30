@@ -22,7 +22,7 @@ pip install clonal_expansion_modeling_tools
 # Usage
 This package provides two subpackages: `gesus_routines`, focused on cleaning and loading data, and `moran_models`, focused on simulation and parameter estimation for the [Moran process](https://en.wikipedia.org/wiki/Moran_process), including parsing files output from Bayesian estimation using [ApproxBayes.jl](https://github.com/marcjwilliams1/ApproxBayes.jl)
 
-To use the functions provides in this package, do
+To use the functions provided in this package, do
 ```python
 from clonal_expansion_modeling_tools import gesus_routines, moran_models
 ```
