@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1025014211.svg)](https://doi.org/10.5281/zenodo.19922835)
+
 This is a set of tools to support the simulations and analysis in the paper _Mathematical modeling of JAK2V617F clonal expansion in a general population cohort_, by Jordan Snyder et al.
 
 # Installation
